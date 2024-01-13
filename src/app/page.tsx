@@ -3,12 +3,13 @@ import styles from "./page.module.css";
 import { cookies } from "next/headers";
 import AuthButton from "./components/auth-button-server";
 import NewComment from "./components/new-comment";
+import Comments from "./components/comments";
 
 export default async function Home() {
-  const superbase = createServerComponentClient({ cookies });
+  const superbase = createServerComponentClient<Database>({ cookies });
   const { data } = await superbase
     .from("comments")
-    .select("*, profiles(*)")
+    .select("*, author: profiles(*)")
     .order("created_at", { ascending: false });
   const {
     data: { session },
@@ -18,7 +19,7 @@ export default async function Home() {
     <main className={styles.main}>
       <AuthButton />
       {session && <NewComment />}
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <Comments comments={data} />
     </main>
   );
 }
